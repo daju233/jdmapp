@@ -5,37 +5,44 @@ import { FlashList } from "@shopify/flash-list";
 import { SQLiteProvider, useSQLiteContext } from "expo-sqlite";
 import { drizzle } from "drizzle-orm/expo-sqlite";
 import { topics, posts, users } from "@/drizzle/schema";
-import { desc, sql } from "drizzle-orm";
+import { eq, desc, sql } from "drizzle-orm";
 
 function Content() {
   const { id } = useGlobalSearchParams();
 
   const sqlite_db = useSQLiteContext();
   const db = drizzle(sqlite_db);
-  const all_users = db.select().from(users);
-  const all_posts = db
+
+  const title = db
+    .select({ title: topics.title })
+    .from(topics)
+    .where(sql`id=${id}`)
+    .all();
+
+  const all_post = db
     .select()
-    .from(posts)
+    .from(users)
+    .leftJoin(posts, eq(users.id, posts.user_id))
     .where(sql`${posts.topic_id} = ${id}`)
     .all();
-  // const user = db
-  //   .select()
-  //   .from(users)
-  //   .where(sql$``);
+
   return (
     <>
+      <Text style={{}}>{title[0].title}</Text>
       <FlashList
         numColumns={1}
         estimatedItemSize={70}
-        data={all_posts}
-        renderItem={({ item: all_posts }) => (
-          <Text style={{ color: "green", textAlign: "left" }}>
-            {}
-            {all_posts.user_id}
-            {"\n"}
-            {all_posts.raw}
-            {"\n"}
-          </Text>
+        data={all_post}
+        renderItem={({ item: post }) => (
+          <>
+            <Text style={{ color: "brown", textAlign: "left" }}>
+              {post.users.name}
+            </Text>
+            <Text style={{ color: "green", textAlign: "left" }}>
+              {post.posts?.raw}
+              {"\n"}
+            </Text>
+          </>
         )}
       ></FlashList>
     </>
