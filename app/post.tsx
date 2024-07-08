@@ -14,7 +14,7 @@ function Content() {
   const db = drizzle(sqlite_db);
 
   const title = db
-    .select({ title: topics.title })
+    .select({ title: topics.title, category_name: topics.category_name })
     .from(topics)
     .where(sql`id=${id}`)
     .all();
@@ -28,14 +28,36 @@ function Content() {
 
   return (
     <>
-      <Text style={{}}>{title[0].title}</Text>
+      <Text
+        style={{
+          fontWeight: "bold",
+          fontSize: 20,
+        }}
+      >
+        {title[0].title}
+        <Text
+          style={{
+            color: "blue",
+            fontWeight: "bold",
+            fontSize: 15,
+          }}
+        >
+          {"  "}
+          {title[0].category_name}
+        </Text>
+      </Text>
       <FlashList
         numColumns={1}
         estimatedItemSize={70}
         data={all_post}
         renderItem={({ item: post }) => (
           <>
-            <Text style={{ color: "brown", textAlign: "left" }}>
+            <Text
+              style={{
+                color: "brown",
+                textAlign: "left",
+              }}
+            >
               {post.users.name}
             </Text>
             <Text style={{ color: "green", textAlign: "left" }}>
